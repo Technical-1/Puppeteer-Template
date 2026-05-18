@@ -1,0 +1,88 @@
+{
+  "name": "kanfer-d-toolkit",
+  "version": "1.0.0",
+  "main": "main.js",
+  "description": "Kanfer D-Toolkit — launch a Puppeteer-controlled browser against any URL",
+  "author": "Kanfer",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "build:mac": "electron-builder --mac",
+    "build:win": "electron-builder --win",
+    "build:linux": "electron-builder --linux",
+    "build:all": "electron-builder --mac --win --linux",
+    "download-chrome": "node scripts/download-chrome.js",
+    "prebuild": "node scripts/download-chrome.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "puppeteer-core": "^24.4.0"
+  },
+  "devDependencies": {
+    "@puppeteer/browsers": "^2.8.0",
+    "electron": "^35.0.1",
+    "@electron/notarize": "^2.5.0",
+    "electron-builder": "^25.1.8",
+    "vitest": "^1.6.0"
+  },
+  "build": {
+    "appId": "com.kanfer.d-toolkit",
+    "productName": "Kanfer D-Toolkit",
+    "copyright": "Copyright © 2026 Kanfer",
+    "directories": { "buildResources": "resources", "output": "dist" },
+    "files": [
+      "**/*",
+      "!dist/**",
+      "!chrome-local/**",
+      "!docs/**",
+      "!node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
+      "!node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
+      "!node_modules/.cache/**",
+      "!**/*.map"
+    ],
+    "extraResources": [
+      { "from": "chrome-local/${os}", "to": "chrome", "filter": ["**/*"] }
+    ],
+    "mac": {
+      "category": "public.app-category.utilities",
+      "target": [
+        { "target": "dmg", "arch": ["x64", "arm64"] },
+        { "target": "zip", "arch": ["x64", "arm64"] }
+      ],
+      "icon": "resources/icon.icns",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.inherit.plist"
+    },
+    "win": {
+      "target": [
+        { "target": "nsis", "arch": ["x64"] },
+        { "target": "portable", "arch": ["x64"] }
+      ],
+      "icon": "resources/icon.ico"
+    },
+    "linux": {
+      "target": ["AppImage", "deb"],
+      "category": "Utility",
+      "icon": "resources/icon.png",
+      "maintainer": "Kanfer <kanfer@users.noreply.github.com>"
+    },
+    "afterSign": "scripts/notarize.js",
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Kanfer D-Toolkit"
+    },
+    "dmg": {
+      "contents": [
+        { "x": 130, "y": 220 },
+        { "x": 410, "y": 220, "type": "link", "path": "/Applications" }
+      ]
+    }
+  }
+}
