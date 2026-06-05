@@ -19,10 +19,18 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@technical-1/chrome-setup": "^0.1.0",
+    "@technical-1/extract": "^0.1.0",
+    "@technical-1/fingerprint": "^0.1.0",
+    "@technical-1/interaction-helpers": "^0.1.0",
+    "@technical-1/launcher": "^0.1.0",
+    "@technical-1/logger": "^0.1.0",
+    "@technical-1/navigation": "^0.1.0",
+    "@technical-1/screenshots": "^0.1.0",
+    "@technical-1/stealth": "^0.1.0",
     "puppeteer-core": "^24.4.0"
   },
   "devDependencies": {
-    "@puppeteer/browsers": "^2.8.0",
     "electron": "^35.0.1",
     "@electron/notarize": "^2.5.0",
     "electron-builder": "^25.1.8",
