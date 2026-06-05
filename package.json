@@ -5,6 +5,7 @@
   "description": "Kanfer D-Toolkit — launch a Puppeteer-controlled browser against any URL",
   "author": "Kanfer",
   "license": "MIT",
+  "packageManager": "pnpm@10.34.1",
   "scripts": {
     "start": "electron .",
     "build": "electron-builder",
@@ -31,7 +32,10 @@
     "appId": "com.kanfer.d-toolkit",
     "productName": "Kanfer D-Toolkit",
     "copyright": "Copyright © 2026 Kanfer",
-    "directories": { "buildResources": "resources", "output": "dist" },
+    "directories": {
+      "buildResources": "resources",
+      "output": "dist"
+    },
     "files": [
       "**/*",
       "!dist/**",
@@ -43,13 +47,31 @@
       "!**/*.map"
     ],
     "extraResources": [
-      { "from": "chrome-local/${os}", "to": "chrome", "filter": ["**/*"] }
+      {
+        "from": "chrome-local/${os}",
+        "to": "chrome",
+        "filter": [
+          "**/*"
+        ]
+      }
     ],
     "mac": {
       "category": "public.app-category.utilities",
       "target": [
-        { "target": "dmg", "arch": ["x64", "arm64"] },
-        { "target": "zip", "arch": ["x64", "arm64"] }
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
       ],
       "icon": "resources/icon.icns",
       "hardenedRuntime": true,
@@ -59,13 +81,26 @@
     },
     "win": {
       "target": [
-        { "target": "nsis", "arch": ["x64"] },
-        { "target": "portable", "arch": ["x64"] }
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
       ],
       "icon": "resources/icon.ico"
     },
     "linux": {
-      "target": ["AppImage", "deb"],
+      "target": [
+        "AppImage",
+        "deb"
+      ],
       "category": "Utility",
       "icon": "resources/icon.png",
       "maintainer": "Kanfer <kanfer@users.noreply.github.com>"
@@ -80,9 +115,23 @@
     },
     "dmg": {
       "contents": [
-        { "x": 130, "y": 220 },
-        { "x": 410, "y": 220, "type": "link", "path": "/Applications" }
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
       ]
     }
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "electron",
+      "esbuild"
+    ]
   }
 }
