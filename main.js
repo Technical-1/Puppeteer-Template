@@ -19,15 +19,11 @@ function createWindow() {
 
 app.whenReady().then(createWindow);
 
-ipcMain.handle('run-automation', async (_event, { url, headless }) => {
+ipcMain.handle("run-automation", async (_event, opts) => {
   try {
-    await run({
-      url,
-      headless,
-      onLog: (message, level = 'info') => {
-        if (mainWindow && !mainWindow.isDestroyed()) {
-          mainWindow.webContents.send('automation-log', { message, level });
-        }
+    await run(opts, (message, level = "info") => {
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send("automation-log", { message, level });
       }
     });
     return { success: true };
