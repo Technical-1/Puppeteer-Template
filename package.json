@@ -1,145 +1,16 @@
 {
-  "name": "pptrkit-gui-app",
+  "name": "puppeteer-template",
   "version": "1.0.0",
-  "main": "main.js",
-  "description": "PptrKit GUI — drive Puppeteer automation from a desktop app, built on the @technical-1 suite",
-  "author": "Technical-1",
+  "private": true,
+  "description": "Starter templates for browser automation on the @technical-1 suite",
   "license": "MIT",
+  "type": "commonjs",
   "packageManager": "pnpm@10.34.1",
   "scripts": {
-    "start": "electron .",
-    "build": "electron-builder",
-    "build:mac": "electron-builder --mac",
-    "build:win": "electron-builder --win",
-    "build:linux": "electron-builder --linux",
-    "build:all": "electron-builder --mac --win --linux",
-    "download-chrome": "node scripts/download-chrome.js",
-    "prebuild": "node scripts/download-chrome.js",
-    "test": "vitest run",
-    "test:watch": "vitest"
-  },
-  "dependencies": {
-    "@technical-1/chrome-setup": "^0.1.0",
-    "@technical-1/extract": "^0.1.0",
-    "@technical-1/fingerprint": "^0.1.0",
-    "@technical-1/interaction-helpers": "^0.1.0",
-    "@technical-1/launcher": "^0.1.0",
-    "@technical-1/logger": "^0.1.0",
-    "@technical-1/navigation": "^0.1.0",
-    "@technical-1/screenshots": "^0.1.0",
-    "@technical-1/stealth": "^0.1.0",
-    "puppeteer-core": "^24.4.0"
+    "new": "node scripts/new.js",
+    "test": "vitest run"
   },
   "devDependencies": {
-    "electron": "^35.0.1",
-    "@electron/notarize": "^2.5.0",
-    "electron-builder": "^25.1.8",
-    "vitest": "^1.6.0"
-  },
-  "build": {
-    "appId": "com.technical-1.pptrkit-gui",
-    "productName": "PptrKit GUI",
-    "copyright": "Copyright © 2026 Jacob Kanfer",
-    "directories": {
-      "buildResources": "resources",
-      "output": "dist"
-    },
-    "files": [
-      "**/*",
-      "!dist/**",
-      "!chrome-local/**",
-      "!docs/**",
-      "!node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
-      "!node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
-      "!node_modules/.cache/**",
-      "!**/*.map"
-    ],
-    "extraResources": [
-      {
-        "from": "chrome-local/${os}",
-        "to": "chrome",
-        "filter": [
-          "**/*"
-        ]
-      }
-    ],
-    "mac": {
-      "category": "public.app-category.utilities",
-      "target": [
-        {
-          "target": "dmg",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
-        },
-        {
-          "target": "zip",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
-        }
-      ],
-      "icon": "resources/icon.icns",
-      "hardenedRuntime": true,
-      "gatekeeperAssess": false,
-      "entitlements": "build/entitlements.mac.plist",
-      "entitlementsInherit": "build/entitlements.mac.inherit.plist"
-    },
-    "win": {
-      "target": [
-        {
-          "target": "nsis",
-          "arch": [
-            "x64"
-          ]
-        },
-        {
-          "target": "portable",
-          "arch": [
-            "x64"
-          ]
-        }
-      ],
-      "icon": "resources/icon.ico"
-    },
-    "linux": {
-      "target": [
-        "AppImage",
-        "deb"
-      ],
-      "category": "Utility",
-      "icon": "resources/icon.png",
-      "maintainer": "Technical-1 <51518860+Technical-1@users.noreply.github.com>"
-    },
-    "afterSign": "scripts/notarize.js",
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true,
-      "shortcutName": "PptrKit GUI"
-    },
-    "dmg": {
-      "contents": [
-        {
-          "x": 130,
-          "y": 220
-        },
-        {
-          "x": 410,
-          "y": 220,
-          "type": "link",
-          "path": "/Applications"
-        }
-      ]
-    }
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "electron",
-      "esbuild"
-    ]
+    "vitest": "^2.1.4"
   }
 }
