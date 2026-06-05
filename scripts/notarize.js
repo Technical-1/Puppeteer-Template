@@ -4,6 +4,13 @@ exports.default = async function notarizing(context) {
   const { electronPlatformName, appOutDir } = context;
   if (electronPlatformName !== 'darwin') return;
 
+  // Skip notarization when Apple credentials aren't configured (e.g. dev/CI
+  // builds without signing secrets) instead of throwing.
+  if (!process.env.APPLE_ID) {
+    console.log('Skipping notarization: APPLE_ID not set.');
+    return;
+  }
+
   const appName = context.packager.appInfo.productFilename;
 
   await notarize({
