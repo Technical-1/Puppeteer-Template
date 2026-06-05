@@ -51,6 +51,7 @@ async function run(options, onLog, _deps) {
     randomFingerprint,
     applyFingerprint,
     screenshot,
+    timestampedPath,
     createEventLogger,
   } = _deps || {
     puppeteer:          require("puppeteer-core"),
@@ -62,15 +63,17 @@ async function run(options, onLog, _deps) {
     randomFingerprint:  require("@technical-1/fingerprint").randomFingerprint,
     applyFingerprint:   require("@technical-1/fingerprint").applyFingerprint,
     screenshot:         require("@technical-1/screenshots").screenshot,
+    timestampedPath:    require("@technical-1/screenshots").timestampedPath,
     createEventLogger:  require("@technical-1/logger").createEventLogger,
   };
 
   const logger = createEventLogger();
   logger.on("log", (e) => { if (onLog) onLog(e.message, e.level); });
-  const log = (m, l = "info") => logger.log(m, l);
+  const log = (m, level = "info") => logger.log(m, level);
 
   let isPackaged = false;
-  try { isPackaged = require("electron").app?.isPackaged ?? false; } catch { /* dev/tests */ }
+  // Intentional: electron is absent in dev/test environments; the catch is the normal path there.
+  try { isPackaged = require("electron").app?.isPackaged ?? false; } catch { /* dev/test fallback — no electron */ }
 
   const executablePath = chromeExecutable(resolveChromePath, isPackaged);
   if (!executablePath) {
@@ -80,10 +83,11 @@ async function run(options, onLog, _deps) {
   const pptr = stealth ? applyStealth(puppeteer) : puppeteer;
   if (stealth) log("Stealth plugin applied", "step");
 
-  log(`Launching Chrome (${headless ? "headless" : "headed"})`, "step");
+  // Launcher logs "Launching Chrome (...)" via the injected logger — no duplicate log here.
+  // Launcher also injects --no-sandbox/--disable-setuid-sandbox — no duplicate args needed.
   return withBrowser(
     pptr,
-    { executablePath, headless: !!headless, args: ["--no-sandbox", "--disable-setuid-sandbox"], logger },
+    { executablePath, headless: !!headless, logger },
     async (browser) => {
       const page = await browser.newPage();
       if (fingerprint) {
@@ -94,18 +98,23 @@ async function run(options, onLog, _deps) {
       await goto(page, url, { logger });
 
       // ─────────────── your automation here ───────────────
-      const heading = await extractText(page, "h1").catch(() => "");
+      const heading = await extractText(page, "h1").catch(() => ""); // example: missing <h1> is fine here; log it if your automation needs it
       if (heading) log(`<h1>: ${heading}`, "info");
       // Add more suite packages (interaction-helpers, session, network, pdf, …) the same way.
       // ─────────────────────────────────────────────────────
 
       if (doShot) {
-        const bytes = await screenshot(page, { fullPage: true });
-        const dir = screenshotDir || path.join(__dirname, "..", "screenshots");
-        fs.mkdirSync(dir, { recursive: true });
-        const file = path.join(dir, `shot-${Date.now()}.png`);
-        fs.writeFileSync(file, bytes);
-        log(`Saved screenshot: ${file}`, "success");
+        try {
+          const bytes = await screenshot(page, { fullPage: true });
+          const dir = screenshotDir || path.join(__dirname, "..", "screenshots");
+          fs.mkdirSync(dir, { recursive: true });
+          const file = timestampedPath(dir, "shot");
+          fs.writeFileSync(file, bytes);
+          log(`Saved screenshot: ${file}`, "success");
+        } catch (err) {
+          log(`Screenshot failed: ${err?.message ?? String(err)}`, "error");
+          throw err;
+        }
       }
       log("Automation complete", "success");
     },

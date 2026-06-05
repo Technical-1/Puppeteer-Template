@@ -1,6 +1,11 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { EventEmitter } from "node:events";
+import { createRequire } from "node:module";
 import { run } from "./runner.js";
+
+// runner.js is CJS — grab the same fs object it uses so spies intercept correctly
+const require = createRequire(import.meta.url);
+const fs = require("fs");
 
 // ── shared mock fns ──────────────────────────────────────────────────────────
 const mockApplyStealth  = vi.fn((p) => p);
@@ -29,6 +34,7 @@ function makeDeps(overrides = {}) {
     randomFingerprint: vi.fn(() => ({ locale: "en-US", timezoneId: "America/New_York" })),
     applyFingerprint:  mockApplyFP,
     screenshot:        mockScreenshot,
+    timestampedPath:   vi.fn(() => "/tmp/shot-x.png"),
     createEventLogger: makeEventLogger,
     ...overrides,
   };
@@ -36,6 +42,10 @@ function makeDeps(overrides = {}) {
 
 beforeEach(() => {
   vi.clearAllMocks();
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
 });
 
 // ── tests ─────────────────────────────────────────────────────────────────────
@@ -81,6 +91,8 @@ describe("runner.run", () => {
 
   // ── screenshot toggle ─────────────────────────────────────────────────────
   it("captures a screenshot only when toggled ON", async () => {
+    vi.spyOn(fs, "mkdirSync").mockReturnValue(undefined);
+    vi.spyOn(fs, "writeFileSync").mockReturnValue(undefined);
     const deps = makeDeps();
     await run(
       { url: "https://x.test", headless: true, screenshot: true, screenshotDir: "/tmp" },
