@@ -23,6 +23,9 @@ jobs:
             label: linux
             platform: linux
     runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: templates/electron-gui-app
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -45,11 +48,11 @@ jobs:
         if: matrix.platform == 'win'
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/*.exe
+          files: templates/electron-gui-app/dist/*.exe
       - name: Upload release assets (Linux)
         if: matrix.platform == 'linux'
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            dist/*.AppImage
-            dist/*.deb
+            templates/electron-gui-app/dist/*.AppImage
+            templates/electron-gui-app/dist/*.deb
