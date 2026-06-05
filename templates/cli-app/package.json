@@ -1,0 +1,24 @@
+{
+  "name": "pptr-cli-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Browser automation CLI built on the @technical-1 suite",
+  "license": "MIT",
+  "type": "commonjs",
+  "bin": { "pptr-cli": "src/cli.js" },
+  "packageManager": "pnpm@10.34.1",
+  "scripts": { "start": "node src/cli.js", "test": "vitest run" },
+  "dependencies": {
+    "@technical-1/chrome-setup": "^0.1.0",
+    "@technical-1/extract": "^0.1.0",
+    "@technical-1/fingerprint": "^0.1.0",
+    "@technical-1/launcher": "^0.1.0",
+    "@technical-1/logger": "^0.1.0",
+    "@technical-1/navigation": "^0.1.0",
+    "@technical-1/screenshots": "^0.1.0",
+    "@technical-1/stealth": "^0.1.0",
+    "commander": "^12.1.0",
+    "puppeteer-core": "^24.4.0"
+  },
+  "devDependencies": { "vitest": "^2.1.4" }
+}
