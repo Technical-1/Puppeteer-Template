@@ -1,62 +1,102 @@
 /**
- * Kanfer D-Toolkit — templateable automation runner.
+ * PptrKit GUI — automation runner. Composes the @technical-1 suite.
+ * Edit the "your automation here" block. onLog(message, level) streams to the UI.
+ * Toggles (stealth/fingerprint/screenshot) come from the GUI.
  *
- * Edit the "YOUR AUTOMATION HERE" block below. Use the helpers from
- * ./helpers.js. `onLog(message, level)` streams lines to the app UI;
- * levels: 'info' | 'success' | 'warn' | 'error' | 'step'.
+ * Deps are resolved lazily (inside run()) so tests can inject mocks via the
+ * optional second argument without needing to intercept top-level require().
  */
-const puppeteer = require('puppeteer-core');
-const { getChromePath } = require('../modules/chrome-path');
-const { safeClick, safeType, waitAndGet, screenshot, scroll } = require('./helpers');
+const path = require("path");
+const fs = require("fs");
+const { homedir } = require("os");
+
+/** @param {{ searchDirs?: string[] }} [opts] */
+function chromeExecutable(resolveChromePath, isPackaged) {
+  const searchDirs = isPackaged
+    ? [path.join(process.resourcesPath, "chrome")]
+    : [path.join(__dirname, "..", "chrome-local"), path.join(homedir(), ".cache", "puppeteer")];
+  return resolveChromePath({ searchDirs });
+}
 
 /**
- * @param {{url:string, headless:boolean, onLog?:(m:string,l?:string)=>void}} options
+ * @param {object} options
+ * @param {string} options.url
+ * @param {boolean} options.headless
+ * @param {boolean} [options.stealth]
+ * @param {boolean} [options.fingerprint]
+ * @param {boolean} [options.screenshot]
+ * @param {string}  [options.screenshotDir]
+ * @param {function(string, string): void} onLog
+ * @param {object} [_deps]  — injectable for tests; omit in production
  */
-async function run({ url, headless, onLog }) {
-  const log = (m, l = 'info') => { if (onLog) onLog(m, l); };
+async function run(options, onLog, _deps) {
+  const { url, headless, stealth, fingerprint, screenshot: doShot, screenshotDir } = options;
 
-  const executablePath = getChromePath();
+  // Resolve dependencies — real packages in production, mocks in tests.
+  const deps = _deps || {
+    puppeteer:        require("puppeteer-core"),
+    resolveChromePath: require("@technical-1/chrome-setup").resolveChromePath,
+    withBrowser:      require("@technical-1/launcher").withBrowser,
+    goto:             require("@technical-1/navigation").goto,
+    extractText:      require("@technical-1/extract").extractText,
+    applyStealth:     require("@technical-1/stealth").applyStealth,
+    randomFingerprint: require("@technical-1/fingerprint").randomFingerprint,
+    applyFingerprint: require("@technical-1/fingerprint").applyFingerprint,
+    screenshot:       require("@technical-1/screenshots").screenshot,
+    createEventLogger: require("@technical-1/logger").createEventLogger,
+  };
+
+  const {
+    puppeteer, resolveChromePath, withBrowser, goto, extractText,
+    applyStealth, randomFingerprint, applyFingerprint, screenshot,
+    createEventLogger,
+  } = deps;
+
+  const logger = createEventLogger();
+  logger.on("log", (e) => { if (onLog) onLog(e.message, e.level); });
+  const log = (m, l = "info") => logger.log(m, l);
+
+  let isPackaged = false;
+  try { isPackaged = require("electron").app?.isPackaged ?? false; } catch { /* dev/tests */ }
+
+  const executablePath = chromeExecutable(resolveChromePath, isPackaged);
   if (!executablePath) {
-    throw new Error('Chrome not found. Run "npm run download-chrome" (dev) or rebuild the installer.');
+    throw new Error('Chrome not found. Run "pnpm run download-chrome" (dev) or rebuild the installer.');
   }
 
-  log(`Launching Chrome (${headless ? 'headless' : 'headed'})`, 'step');
-  const browser = await puppeteer.launch({
-    executablePath,
-    headless: !!headless,
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
-  });
+  const pptr = stealth ? applyStealth(puppeteer) : puppeteer;
+  if (stealth) log("Stealth plugin applied", "step");
 
-  try {
-    const page = await browser.newPage();
-    log(`Navigating to ${url}`, 'step');
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
-    log('Page loaded', 'success');
+  log(`Launching Chrome (${headless ? "headless" : "headed"})`, "step");
+  return withBrowser(
+    pptr,
+    { executablePath, headless: !!headless, args: ["--no-sandbox", "--disable-setuid-sandbox"], logger },
+    async (browser) => {
+      const page = await browser.newPage();
+      if (fingerprint) {
+        const fp = randomFingerprint();
+        await applyFingerprint(page, fp);
+        log(`Fingerprint applied (${fp.locale} / ${fp.timezoneId})`, "step");
+      }
+      await goto(page, url, { logger });
 
-    // ─────────────── YOUR AUTOMATION HERE ───────────────
-    // Examples (uncomment / adapt):
-    //
-    //   await safeType(page, 'input[name="q"]', 'hello world');
-    //   await safeClick(page, 'button[type="submit"]');
-    //   const heading = await waitAndGet(page, 'h1');
-    //   log(`Heading: ${heading}`, 'info');
-    //   await scroll(page);
-    //   const shot = await screenshot(page, 'result');
-    //   log(`Saved screenshot: ${shot}`, 'success');
-    //
-    // To keep a HEADED browser open while you build automation,
-    // uncomment the next line (the run will not finish until you close it):
-    //   await new Promise(() => {});
-    // ─────────────────────────────────────────────────────
+      // ─────────────── your automation here ───────────────
+      const heading = await extractText(page, "h1").catch(() => "");
+      if (heading) log(`<h1>: ${heading}`, "info");
+      // Add more suite packages (interaction-helpers, session, network, pdf, …) the same way.
+      // ─────────────────────────────────────────────────────
 
-    log('Automation complete', 'success');
-  } catch (err) {
-    log(`Error: ${err?.message ?? String(err)}`, 'error');
-    throw err;
-  } finally {
-    await browser.close();
-    log('Browser closed', 'info');
-  }
+      if (doShot) {
+        const bytes = await screenshot(page, { fullPage: true });
+        const dir = screenshotDir || path.join(__dirname, "..", "screenshots");
+        fs.mkdirSync(dir, { recursive: true });
+        const file = path.join(dir, `shot-${Date.now()}.png`);
+        fs.writeFileSync(file, bytes);
+        log(`Saved screenshot: ${file}`, "success");
+      }
+      log("Automation complete", "success");
+    },
+  );
 }
 
 module.exports = { run };
