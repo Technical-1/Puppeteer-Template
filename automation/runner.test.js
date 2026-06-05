@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { EventEmitter } from "node:events";
 import { run } from "./runner.js";
 
-// ── shared mock objects ──────────────────────────────────────────────────────
+// ── shared mock fns ──────────────────────────────────────────────────────────
 const mockApplyStealth  = vi.fn((p) => p);
 const mockGoto          = vi.fn();
 const mockApplyFP       = vi.fn();
@@ -38,8 +38,9 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-// ── tests ────────────────────────────────────────────────────────────────────
+// ── tests ─────────────────────────────────────────────────────────────────────
 describe("runner.run", () => {
+  // ── navigation + logging ──────────────────────────────────────────────────
   it("navigates and streams logs through onLog", async () => {
     const logs = [];
     const deps = makeDeps();
@@ -52,19 +53,34 @@ describe("runner.run", () => {
     expect(logs.some(([, m]) => /Automation complete/i.test(m))).toBe(true);
   });
 
-  it("applies stealth only when toggled", async () => {
+  // ── stealth toggle ────────────────────────────────────────────────────────
+  it("applies stealth only when toggled ON", async () => {
     const deps = makeDeps();
     await run({ url: "https://x.test", headless: true, stealth: true }, () => {}, deps);
     expect(mockApplyStealth).toHaveBeenCalledTimes(1);
   });
 
-  it("applies a fingerprint only when toggled", async () => {
+  it("does NOT apply stealth when toggle is absent", async () => {
+    const deps = makeDeps();
+    await run({ url: "https://x.test", headless: true }, () => {}, deps);
+    expect(mockApplyStealth).not.toHaveBeenCalled();
+  });
+
+  // ── fingerprint toggle ────────────────────────────────────────────────────
+  it("applies a fingerprint only when toggled ON", async () => {
     const deps = makeDeps();
     await run({ url: "https://x.test", headless: true, fingerprint: true }, () => {}, deps);
     expect(mockApplyFP).toHaveBeenCalledTimes(1);
   });
 
-  it("captures a screenshot only when toggled", async () => {
+  it("does NOT apply fingerprint when toggle is absent", async () => {
+    const deps = makeDeps();
+    await run({ url: "https://x.test", headless: true }, () => {}, deps);
+    expect(mockApplyFP).not.toHaveBeenCalled();
+  });
+
+  // ── screenshot toggle ─────────────────────────────────────────────────────
+  it("captures a screenshot only when toggled ON", async () => {
     const deps = makeDeps();
     await run(
       { url: "https://x.test", headless: true, screenshot: true, screenshotDir: "/tmp" },
@@ -72,5 +88,11 @@ describe("runner.run", () => {
       deps,
     );
     expect(mockScreenshot).toHaveBeenCalledTimes(1);
+  });
+
+  it("does NOT capture a screenshot when toggle is absent", async () => {
+    const deps = makeDeps();
+    await run({ url: "https://x.test", headless: true }, () => {}, deps);
+    expect(mockScreenshot).not.toHaveBeenCalled();
   });
 });

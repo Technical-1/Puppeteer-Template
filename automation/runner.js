@@ -3,14 +3,21 @@
  * Edit the "your automation here" block. onLog(message, level) streams to the UI.
  * Toggles (stealth/fingerprint/screenshot) come from the GUI.
  *
- * Deps are resolved lazily (inside run()) so tests can inject mocks via the
- * optional second argument without needing to intercept top-level require().
+ * WHY _deps EXISTS (test seam — production callers never pass it):
+ * runner.js is intentionally CJS so it loads cleanly in both Electron's main
+ * process and Node.js scripts. vitest's vi.mock() operates on the ESM loader
+ * registry and cannot intercept CJS require() calls — neither server.deps.inline
+ * nor deps.inline patches the native Node CJS module cache. The _deps parameter
+ * is the only reliable way to inject mock implementations in vitest 1.x without
+ * converting runner.js to an ESM module (which would break Electron's main-process
+ * require() chain). Remove _deps only when the project upgrades to vitest 2+ with
+ * native CJS mock support, or when runner.js becomes an ES module.
  */
 const path = require("path");
 const fs = require("fs");
 const { homedir } = require("os");
 
-/** @param {{ searchDirs?: string[] }} [opts] */
+/** @param {boolean} isPackaged */
 function chromeExecutable(resolveChromePath, isPackaged) {
   const searchDirs = isPackaged
     ? [path.join(process.resourcesPath, "chrome")]
@@ -33,24 +40,30 @@ async function run(options, onLog, _deps) {
   const { url, headless, stealth, fingerprint, screenshot: doShot, screenshotDir } = options;
 
   // Resolve dependencies — real packages in production, mocks in tests.
-  const deps = _deps || {
-    puppeteer:        require("puppeteer-core"),
-    resolveChromePath: require("@technical-1/chrome-setup").resolveChromePath,
-    withBrowser:      require("@technical-1/launcher").withBrowser,
-    goto:             require("@technical-1/navigation").goto,
-    extractText:      require("@technical-1/extract").extractText,
-    applyStealth:     require("@technical-1/stealth").applyStealth,
-    randomFingerprint: require("@technical-1/fingerprint").randomFingerprint,
-    applyFingerprint: require("@technical-1/fingerprint").applyFingerprint,
-    screenshot:       require("@technical-1/screenshots").screenshot,
-    createEventLogger: require("@technical-1/logger").createEventLogger,
-  };
-
+  // See module-level comment for why the _deps seam is necessary.
   const {
-    puppeteer, resolveChromePath, withBrowser, goto, extractText,
-    applyStealth, randomFingerprint, applyFingerprint, screenshot,
+    puppeteer,
+    resolveChromePath,
+    withBrowser,
+    goto,
+    extractText,
+    applyStealth,
+    randomFingerprint,
+    applyFingerprint,
+    screenshot,
     createEventLogger,
-  } = deps;
+  } = _deps || {
+    puppeteer:          require("puppeteer-core"),
+    resolveChromePath:  require("@technical-1/chrome-setup").resolveChromePath,
+    withBrowser:        require("@technical-1/launcher").withBrowser,
+    goto:               require("@technical-1/navigation").goto,
+    extractText:        require("@technical-1/extract").extractText,
+    applyStealth:       require("@technical-1/stealth").applyStealth,
+    randomFingerprint:  require("@technical-1/fingerprint").randomFingerprint,
+    applyFingerprint:   require("@technical-1/fingerprint").applyFingerprint,
+    screenshot:         require("@technical-1/screenshots").screenshot,
+    createEventLogger:  require("@technical-1/logger").createEventLogger,
+  };
 
   const logger = createEventLogger();
   logger.on("log", (e) => { if (onLog) onLog(e.message, e.level); });
