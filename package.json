@@ -1,10 +1,11 @@
 {
-  "name": "kanfer-d-toolkit",
+  "name": "pptrkit-gui-app",
   "version": "1.0.0",
   "main": "main.js",
-  "description": "Kanfer D-Toolkit — launch a Puppeteer-controlled browser against any URL",
-  "author": "Kanfer",
+  "description": "PptrKit GUI — drive Puppeteer automation from a desktop app, built on the @technical-1 suite",
+  "author": "Technical-1",
   "license": "MIT",
+  "packageManager": "pnpm@10.34.1",
   "scripts": {
     "start": "electron .",
     "build": "electron-builder",
@@ -18,20 +19,31 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@technical-1/chrome-setup": "^0.1.0",
+    "@technical-1/extract": "^0.1.0",
+    "@technical-1/fingerprint": "^0.1.0",
+    "@technical-1/interaction-helpers": "^0.1.0",
+    "@technical-1/launcher": "^0.1.0",
+    "@technical-1/logger": "^0.1.0",
+    "@technical-1/navigation": "^0.1.0",
+    "@technical-1/screenshots": "^0.1.0",
+    "@technical-1/stealth": "^0.1.0",
     "puppeteer-core": "^24.4.0"
   },
   "devDependencies": {
-    "@puppeteer/browsers": "^2.8.0",
     "electron": "^35.0.1",
     "@electron/notarize": "^2.5.0",
     "electron-builder": "^25.1.8",
     "vitest": "^1.6.0"
   },
   "build": {
-    "appId": "com.kanfer.d-toolkit",
-    "productName": "Kanfer D-Toolkit",
-    "copyright": "Copyright © 2026 Kanfer",
-    "directories": { "buildResources": "resources", "output": "dist" },
+    "appId": "com.technical-1.pptrkit-gui",
+    "productName": "PptrKit GUI",
+    "copyright": "Copyright © 2026 Jacob Kanfer",
+    "directories": {
+      "buildResources": "resources",
+      "output": "dist"
+    },
     "files": [
       "**/*",
       "!dist/**",
@@ -43,13 +55,31 @@
       "!**/*.map"
     ],
     "extraResources": [
-      { "from": "chrome-local/${os}", "to": "chrome", "filter": ["**/*"] }
+      {
+        "from": "chrome-local/${os}",
+        "to": "chrome",
+        "filter": [
+          "**/*"
+        ]
+      }
     ],
     "mac": {
       "category": "public.app-category.utilities",
       "target": [
-        { "target": "dmg", "arch": ["x64", "arm64"] },
-        { "target": "zip", "arch": ["x64", "arm64"] }
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
       ],
       "icon": "resources/icon.icns",
       "hardenedRuntime": true,
@@ -59,16 +89,29 @@
     },
     "win": {
       "target": [
-        { "target": "nsis", "arch": ["x64"] },
-        { "target": "portable", "arch": ["x64"] }
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
       ],
       "icon": "resources/icon.ico"
     },
     "linux": {
-      "target": ["AppImage", "deb"],
+      "target": [
+        "AppImage",
+        "deb"
+      ],
       "category": "Utility",
       "icon": "resources/icon.png",
-      "maintainer": "Kanfer <kanfer@users.noreply.github.com>"
+      "maintainer": "Technical-1 <51518860+Technical-1@users.noreply.github.com>"
     },
     "afterSign": "scripts/notarize.js",
     "nsis": {
@@ -76,13 +119,27 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "Kanfer D-Toolkit"
+      "shortcutName": "PptrKit GUI"
     },
     "dmg": {
       "contents": [
-        { "x": 130, "y": 220 },
-        { "x": 410, "y": 220, "type": "link", "path": "/Applications" }
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
       ]
     }
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "electron",
+      "esbuild"
+    ]
   }
 }

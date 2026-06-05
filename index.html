@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta http-equiv="Content-Security-Policy"
         content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'" />
-  <title>Kanfer D-Toolkit</title>
+  <title>PptrKit GUI</title>
   <style>
     :root { --bg:#0f1117; --panel:#171a23; --border:#262a36; --accent:#5b8cff; --text:#e6e8ef; --muted:#8b90a0; }
     * { box-sizing:border-box; margin:0; padding:0; }
@@ -26,13 +26,16 @@
   </style>
 </head>
 <body>
-  <h1>Kanfer D-Toolkit</h1>
-  <div class="sub">Launch a Puppeteer-controlled browser against any URL.</div>
+  <h1>PptrKit GUI</h1>
+  <div class="sub">Drive Puppeteer automation built on the @technical-1 suite.</div>
   <div class="card">
     <label for="url">Target URL</label>
     <input id="url" type="url" placeholder="https://example.com" autocomplete="off" />
     <div class="row">
       <label class="toggle"><input id="headless" type="checkbox" /> Headless</label>
+      <label class="toggle"><input id="stealth" type="checkbox" /> Stealth</label>
+      <label class="toggle"><input id="fingerprint" type="checkbox" /> Fingerprint</label>
+      <label class="toggle"><input id="screenshot" type="checkbox" /> Screenshot on finish</label>
       <button id="launch">Launch</button>
     </div>
     <div id="err" class="err"></div>
