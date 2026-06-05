@@ -21,8 +21,12 @@ pnpm test                  # runner unit tests
 pnpm run build             # current OS; or build:mac / build:win / build:linux
 ```
 
-macOS signing/notarization uses `APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD`,
-`APPLE_TEAM_ID` env vars (see `scripts/notarize.js`).
+Builds are **unsigned by default** (`mac.identity: null` in `package.json`), so
+`electron-builder` skips the macOS codesign step and the build completes without a
+Developer ID certificate. To sign and notarize for distribution: remove the
+`"identity": null` line from `build.mac`, supply a Developer ID Application cert in
+your keychain, and set the `APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD`, and
+`APPLE_TEAM_ID` environment variables (see `scripts/notarize.js`).
 
 ## How it works
 
