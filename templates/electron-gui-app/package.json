@@ -5,6 +5,9 @@
   "description": "PptrKit GUI — drive Puppeteer automation from a desktop app, built on the @technical-1 suite",
   "author": "Technical-1",
   "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
   "packageManager": "pnpm@10.34.1",
   "scripts": {
     "start": "electron .",
