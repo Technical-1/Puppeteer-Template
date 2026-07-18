@@ -15,6 +15,9 @@ node scripts/new.js <template> <target-dir>
 # e.g.
 node scripts/new.js cli-app ../my-scraper
 cd ../my-scraper && pnpm install && pnpm test
+
+# electron-gui-app also needs a Chrome download before `pnpm start`:
+#   pnpm run download-chrome && pnpm start
 ```
 
 See [docs/using-the-suite.md](docs/using-the-suite.md) for how the templates

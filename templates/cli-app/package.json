@@ -5,6 +5,9 @@
   "description": "Browser automation CLI built on the @technical-1 suite",
   "license": "MIT",
   "type": "commonjs",
+  "engines": {
+    "node": ">=18"
+  },
   "bin": { "pptr-cli": "src/cli.js" },
   "packageManager": "pnpm@10.34.1",
   "scripts": { "start": "node src/cli.js", "test": "vitest run" },

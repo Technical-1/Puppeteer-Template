@@ -47,6 +47,11 @@ async function run(options, logger, _deps) {
         fs.mkdirSync(screenshotDir, { recursive: true });
         const file = d.timestampedPath(screenshotDir, "shot");
         fs.writeFileSync(file, bytes);
+        if (!fs.existsSync(file)) {
+          // Tripwire: a requested screenshot that never lands on disk is a
+          // silent-failure regression — fail loudly (cli.js maps this to exit 1).
+          throw new Error(`Screenshot was requested but none was produced at ${file}`);
+        }
         log(`Saved screenshot: ${file}`, "success");
       }
       log("Done", "success");

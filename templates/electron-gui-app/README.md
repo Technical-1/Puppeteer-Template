@@ -15,6 +15,10 @@ pnpm start                 # launch the app
 pnpm test                  # runner unit tests
 ```
 
+> **First run:** `pnpm run download-chrome` fetches a pinned Chrome-for-Testing
+> build (~150–200 MB) to bundle; on a slow connection this can take a few
+> minutes. It is cached after the first fetch.
+
 ## Package
 
 ```bash
