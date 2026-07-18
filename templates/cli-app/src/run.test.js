@@ -44,10 +44,22 @@ describe("cli run", () => {
     const fs = require("node:fs");
     vi.spyOn(fs, "mkdirSync").mockReturnValue(undefined);
     vi.spyOn(fs, "writeFileSync").mockReturnValue(undefined);
+    vi.spyOn(fs, "existsSync").mockReturnValue(true); // happy path: the shot landed
     const d = makeDeps(); await run({ url: "u", screenshot: true, screenshotDir: "/tmp" }, logger(), d);
     expect(d.screenshot).toHaveBeenCalledTimes(1);
     const d2 = makeDeps(); await run({ url: "u" }, logger(), d2);
     expect(d2.screenshot).not.toHaveBeenCalled();
+    vi.restoreAllMocks();
+  });
+  it("fails loudly if a screenshot was requested but none was produced", async () => {
+    const fs = require("node:fs");
+    vi.spyOn(fs, "mkdirSync").mockReturnValue(undefined);
+    vi.spyOn(fs, "writeFileSync").mockReturnValue(undefined);
+    vi.spyOn(fs, "existsSync").mockReturnValue(false); // simulate the shot never landing on disk
+    const d = makeDeps();
+    await expect(
+      run({ url: "u", screenshot: true, screenshotDir: "/tmp" }, logger(), d),
+    ).rejects.toThrow(/screenshot was requested but none was produced/i);
     vi.restoreAllMocks();
   });
 });

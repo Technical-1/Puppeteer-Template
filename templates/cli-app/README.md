@@ -5,7 +5,7 @@ A command-line browser-automation starter built on the
 
 ```bash
 pnpm install
-pnpm start -- https://example.com --stealth --screenshot ./shots
+pnpm start https://example.com --stealth --screenshot ./shots
 ```
 
 Flags: `--no-headless`, `--stealth`, `--fingerprint`, `--screenshot <dir>`.
