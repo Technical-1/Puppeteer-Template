@@ -22,15 +22,15 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@technical-1/chrome-setup": "^0.1.0",
-    "@technical-1/extract": "^0.1.0",
-    "@technical-1/fingerprint": "^0.1.0",
-    "@technical-1/interaction-helpers": "^0.1.0",
-    "@technical-1/launcher": "^0.1.0",
-    "@technical-1/logger": "^0.1.0",
-    "@technical-1/navigation": "^0.1.0",
-    "@technical-1/screenshots": "^0.1.0",
-    "@technical-1/stealth": "^0.1.0",
+    "@technical-1/chrome-setup": "^1.0.0",
+    "@technical-1/extract": "^1.0.0",
+    "@technical-1/fingerprint": "^1.0.0",
+    "@technical-1/interaction-helpers": "^1.0.0",
+    "@technical-1/launcher": "^1.0.0",
+    "@technical-1/logger": "^1.0.0",
+    "@technical-1/navigation": "^1.0.0",
+    "@technical-1/screenshots": "^1.0.0",
+    "@technical-1/stealth": "^1.0.0",
     "puppeteer-core": "^24.4.0"
   },
   "devDependencies": {
