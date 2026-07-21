@@ -44,6 +44,8 @@ pnpm start
 
 Both templates are built the same way: an automation runner that composes the published `@technical-1` packages, with one clearly marked `your automation here` block. Edit that one spot and you've got a custom automation — no plumbing required.
 
+The suite goes well beyond what ships in the templates. Need to log in before scraping, isolate a request behind its own browser context, check a page's accessibility, capture code coverage or a performance trace, reach for raw CDP, or track work happening in a worker? Those are all separate `@technical-1` packages you can `pnpm add` and pull into your runner alongside the ones already wired up.
+
 See [docs/using-the-suite.md](docs/using-the-suite.md) for how the templates consume the suite (and how to dev-link a local suite checkout while you iterate).
 
 ## License
